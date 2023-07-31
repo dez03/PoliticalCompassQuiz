@@ -1,49 +1,53 @@
 // pages/page1.tsx
 import React, { useState } from "react";
 import Link from "next/link";
-import page2 from "../pages/page2"
 
 const questions = [
   {
     questionText: "What is your favorite color?",
-    answers: ["Red", "Blue", "Green", "Yellow"],
+    answers: [
+      { text: "Red", value: 1 },
+      { text: "Blue", value: 2 },
+      { text: "Green", value: 3 },
+      { text: "Yellow", value: 4 },
+    ],
   },
   {
     questionText: "What is your favorite animal?",
-    answers: ["Dog", "Cat", "Bird", "Fish"],
+    answers: [
+      { text: "Dog", value: 1 },
+      { text: "Cat", value: 2 },
+      { text: "Bird", value: 3 },
+      { text: "Fish", value: 4 },
+    ],
   },
-  {
-    questionText: "What grade are you in?",
-    answers: ["9th", "10th", "11th", "12th"],
-  },
-  {
-    questionText: "What is your favorite season?",
-    answers: ["Summer", "Spring", "Fall", "Winter"],
-  },
-  {
-    questionText: "What is your favorite fruit",
-    answers: ["Apple", "Orange", "Watermelon", "Grapes"],
-  },
-
   // Add more questions here
 ];
 
 const Page1: React.FC = () => {
-  const [answers, setAnswers] = useState<string[]>(
-    Array(questions.length).fill("")
+  const [answers, setAnswers] = useState<number[]>(
+    Array(questions.length).fill(-1)
   );
 
-  const handleAnswerSelection = (index: number, answer: string) => {
+  const handleAnswerSelection = (
+    questionIndex: number,
+    answerValue: number
+  ) => {
     const updatedAnswers = [...answers];
-    updatedAnswers[index] = answer;
+    updatedAnswers[questionIndex] = answerValue;
     setAnswers(updatedAnswers);
   };
 
-  const areAllQuestionsAnswered = answers.every((answer) => answer !== "");
+  const areAllQuestionsAnswered = answers.every((answer) => answer !== -1);
 
   const handleNextClick = () => {
-    // Navigate to the next page or do anything else you need here
-    console.log("Answers:", answers);
+    if (areAllQuestionsAnswered) {
+      // Save the user's answers in local storage
+      for (let i = 0; i < answers.length; i++) {
+        localStorage.setItem(`question_${i}`, answers[i].toString());
+      }
+
+    }
   };
 
   return (
@@ -52,22 +56,25 @@ const Page1: React.FC = () => {
       {questions.map((question, index) => (
         <div key={index}>
           <h2>{question.questionText}</h2>
-          {question.answers.map((answer, answerIndex) => (
-            <div key={answerIndex}>
+          {question.answers.map((answer) => (
+            <div key={answer.value}>
               <label>
                 <input
                   type="radio"
                   name={`question${index}`}
-                  value={answer}
-                  checked={answers[index] === answer}
-                  onChange={() => handleAnswerSelection(index, answer)}
+                  value={answer.value}
+                  checked={answers[index] === answer.value}
+                  onChange={() => handleAnswerSelection(index, answer.value)}
                 />
-                <span>{answer}</span>
+                <span>{answer.text}</span>
               </label>
             </div>
           ))}
         </div>
       ))}
+
+
+      
       <Link href="page2">
         <button onClick={handleNextClick} disabled={!areAllQuestionsAnswered}>
           Next
